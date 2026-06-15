@@ -3,22 +3,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
-import seaborn as sns
 
 # =========================
-# 页面配置
+# ⭐ 中文修复（最稳定）
 # =========================
-st.set_page_config(page_title="Kobe Shot Dashboard", layout="wide")
-
-# =========================
-# ⭐ 解决中文显示问题（关键）
-# =========================
-plt.rcParams['font.sans-serif'] = ['SimHei']  # 中文字体
+plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']
 plt.rcParams['axes.unicode_minus'] = False
 
-# =========================
-# 数据读取
-# =========================
+st.set_page_config(page_title="Kobe Shot Dashboard", layout="wide")
+
 df = pd.read_csv("data_cleaned.csv")
 
 st.title("🏀 Kobe Bryant 投篮数据分析")
@@ -32,13 +25,13 @@ with col1:
     st.subheader("投篮分布")
 
     fig, ax = plt.subplots(figsize=(6,6))
-    ax.scatter(df["loc_x"], df["loc_y"], s=1, alpha=0.5)
+    ax.scatter(df["loc_x"], df["loc_y"], s=1, alpha=0.4)
 
     ax.set_title("Shot Distribution")
-    ax.set_xlabel("Court X")
-    ax.set_ylabel("Court Y")
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
 
-    # 字体不旋转（避免中文乱码）
+    # ⭐ 横向显示（你要的）
     plt.xticks(rotation=0)
     plt.yticks(rotation=0)
 
@@ -55,7 +48,7 @@ with col2:
     fig, ax = plt.subplots(figsize=(6,4))
     ax.bar(data1.index, data1.values)
 
-    plt.xticks(rotation=0)  # ⭐ 中文不旋转
+    plt.xticks(rotation=0)  # ⭐ 关键：不旋转
     ax.set_ylim(0, 1)
 
     ax.set_title("Shot Zone FG%")
@@ -72,7 +65,7 @@ data2 = df.groupby("distance_range")["shot_made_flag"].mean()
 fig, ax = plt.subplots(figsize=(8,4))
 ax.bar(data2.index, data2.values)
 
-plt.xticks(rotation=0)  # ⭐ 修复中文倾斜问题
+plt.xticks(rotation=0)  # ⭐ 横着
 ax.set_ylim(0, 1)
 
 ax.set_title("Distance FG%")
@@ -80,36 +73,37 @@ ax.set_title("Distance FG%")
 st.pyplot(fig)
 
 # =========================
-# 4. 🏀 球场热力图（升级版）
+# 4. ⭐ 热力图（改成稳定版）
 # =========================
-st.subheader("🏀 投篮热力图（Shot Heatmap）")
+st.subheader("🏀 投篮热力图（球场版）")
 
 fig, ax = plt.subplots(figsize=(8,7))
 
-# 球场背景（你已经上传 court.png）
+# 球场图
 try:
     court = Image.open("court.png")
-    ax.imshow(court, extent=[-250, 250, 0, 470], alpha=0.6)
+    ax.imshow(court, extent=[-250, 250, 0, 470], alpha=0.9)
 except:
-    st.warning("未找到 court.png")
+    st.warning("没有 court.png")
 
-# ⭐ 更合理热力图（KDE，比 hexbin 更像NBA分析）
-sns.kdeplot(
-    x=df["loc_x"],
-    y=df["loc_y"],
-    fill=True,
+# ⭐ 用 hexbin（稳定 + 清晰）
+hb = ax.hexbin(
+    df["loc_x"],
+    df["loc_y"],
+    gridsize=35,
     cmap="Reds",
-    alpha=0.5,
-    ax=ax
+    alpha=0.6
 )
+
+plt.colorbar(hb, ax=ax, label="Shot Density")
 
 ax.set_xlim(-250, 250)
 ax.set_ylim(0, 470)
 
-# 去掉坐标轴（更像专业NBA图）
+# ⭐ 关键：去掉乱七八糟坐标
 ax.set_xticks([])
 ax.set_yticks([])
 
-ax.set_title("Kobe Shot Heatmap (FG Density)")
+ax.set_title("Kobe Shot Heatmap")
 
 st.pyplot(fig)
