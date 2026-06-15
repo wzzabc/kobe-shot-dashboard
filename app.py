@@ -56,42 +56,57 @@ def draw_court(ax=None):
 
 
 # =========================
-# 热力图
+# Half Court Heatmap (FIXED)
 # =========================
+
 fig, ax = plt.subplots(figsize=(8, 7))
 
+# 画球场（你原来的函数）
 ax = draw_court(ax)
 
-# ⚠️ 关键：只用进球位置 or 全部投篮都可以
-x = df["loc_x"]
-y = df["loc_y"]
+# -------------------------
+# 数据
+# -------------------------
+x = df["loc_x"].values
+y = df["loc_y"].values
+z = df["shot_made_flag"].values  # 0/1
 
+# -------------------------
+# 🔥关键修复1：分箱热力图
+# 用 counts + mean FG%
+# -------------------------
 hb = ax.hexbin(
     x, y,
-    C=df["shot_made_flag"],
+    C=z,
     reduce_C_function=np.mean,
-    gridsize=35,
+    gridsize=30,        # 不要太大，不然糊
     cmap="Reds",
-    mincnt=1,          # ⭐关键：避免“一整片颜色”
-    alpha=0.7
+    mincnt=2,           # 至少2个样本才显示
+    vmin=0.0,
+    vmax=1.0,
+    alpha=0.85
 )
 
+# -------------------------
+# colorbar
+# -------------------------
 cbar = plt.colorbar(hb, ax=ax)
 cbar.set_label("FG%")
 
-# =========================
-# 关键修复：比例
-# =========================
+# -------------------------
+# 🔥关键修复2：NBA半场比例
+# -------------------------
 ax.set_xlim(-250, 250)
 ax.set_ylim(0, 470)
 ax.set_aspect("equal")
 
-# =========================
-# 字体问题修复（全部横着）
-# =========================
+# -------------------------
+# 🔥关键修复3：不要乱转字体
+# -------------------------
 ax.set_xticks([])
 ax.set_yticks([])
 
-ax.set_title("Kobe Shot Heatmap (Half Court FG%)")
+ax.set_title("Kobe Bryant Shot Heatmap (Half Court FG%)")
 
-st.pyplot(fig)
+plt.tight_layout()
+plt.show()
