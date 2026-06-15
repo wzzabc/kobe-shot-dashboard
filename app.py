@@ -13,7 +13,7 @@ st.title("🏀 Kobe Bryant 投篮数据分析")
 col1, col2 = st.columns(2)
 
 # =========================
-# 1. 投篮分布（原图保留 + 优化字体）
+# 1. 投篮分布（保留）
 # =========================
 with col1:
     st.subheader("投篮分布")
@@ -25,14 +25,13 @@ with col1:
     ax.set_xlabel("Court X")
     ax.set_ylabel("Court Y")
 
-    # ⭐ 字体优化（关键）
     plt.xticks(rotation=0)
     plt.yticks(rotation=0)
 
     st.pyplot(fig)
 
 # =========================
-# 2. 区域命中率（优化字体）
+# 2. 区域命中率（保留）
 # =========================
 with col2:
     st.subheader("区域命中率")
@@ -50,7 +49,7 @@ with col2:
     st.pyplot(fig)
 
 # =========================
-# 3. 距离命中率（优化字体）
+# 3. 距离命中率（保留）
 # =========================
 st.subheader("距离命中率")
 
@@ -67,20 +66,20 @@ ax.set_title("Distance FG%")
 st.pyplot(fig)
 
 # =========================
-# 4. 🏀 新增：球场热力图（重点）
+# 4. 🏀 球场热力图（新增）
 # =========================
 st.subheader("🏀 投篮热力图（Shot Heatmap）")
 
 fig, ax = plt.subplots(figsize=(8,7))
 
-# 如果你有球场图（推荐）
+# 球场背景
 try:
     court = Image.open("court.png")
-    ax.imshow(court, extent=[-250, 250, 0, 470])
+    ax.imshow(court, extent=[-250, 250, 0, 470], alpha=0.5)
 except:
-    pass  # 没有图片也能运行
+    st.warning("未找到 court.png，仅显示热力图")
 
-# 热力图（核心）
+# 热力图
 hb = ax.hexbin(
     df["loc_x"],
     df["loc_y"],
@@ -88,16 +87,15 @@ hb = ax.hexbin(
     reduce_C_function=np.mean,
     gridsize=30,
     cmap="Reds",
-    alpha=0.6
+    alpha=0.7
 )
 
-cb = plt.colorbar(hb, ax=ax)
+cb = plt.colorbar(hb, ax=ax, shrink=0.8)
 cb.set_label("FG%")
 
 ax.set_xlim(-250, 250)
 ax.set_ylim(0, 470)
 
-# ⭐ 字体全部横向（关键）
 ax.set_xticks([])
 ax.set_yticks([])
 
