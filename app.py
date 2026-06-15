@@ -57,24 +57,26 @@ def draw_court(ax=None):
 
 fig, ax = plt.subplots(figsize=(8,7))
 
-df_clean = df.dropna(subset=["loc_x","loc_y","shot_made_flag"])
-
 ax = draw_court(ax)
+
+df_clean = df.dropna(subset=["loc_x","loc_y","shot_made_flag"])
 
 hb = ax.hexbin(
     df_clean["loc_x"],
     df_clean["loc_y"],
     C=df_clean["shot_made_flag"],
     reduce_C_function=np.mean,
-    gridsize=35,
+    gridsize=28,
     cmap="Reds",
     mincnt=2,
-    alpha=0.8
+    vmin=0,
+    vmax=1,
+    alpha=0.85
 )
 
 plt.colorbar(hb, ax=ax, label="FG%")
 
-# ⭐关键修复（用真实数据范围）
+# ⭐关键：去掉空框（自动贴合数据）
 ax.set_xlim(-250, 250)
 ax.set_ylim(0, df_clean["loc_y"].max() + 10)
 
@@ -82,5 +84,7 @@ ax.set_aspect("equal")
 
 ax.set_xticks([])
 ax.set_yticks([])
+
+ax.set_title("Kobe Shot Heatmap")
 
 st.pyplot(fig)
